@@ -9,3 +9,5 @@ function bitNum(number) {
     }
     console.log(count)
 }
+
+// TASK 2 
