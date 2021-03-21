@@ -1,39 +1,35 @@
 // TASK 1
-// function bitNum(number) {
-//     let tmp = (number).toString(2)
-//     let count = 0;
-//     for(let i in tmp) {
-//         if(tmp[i]==1) {
-//             count++
-//         } 
-//     }
-//     console.log(count)
-// }
+function bitNum(number) {
+    let tmp = (number).toString(2)
+    let count = 0;
+    for(let i in tmp) {
+        if(tmp[i]==1) {
+            count++
+        } 
+    }
+    return (count)
+}
 
 // TASK 2 
-// function sortString(string) {
-//     if(string.length==0) {
-//         return ""
-//     }
-//     else {
-//         let result = []
-//         let arrString = string.split(" ")
-//         for ( let value of arrString ){
-//             for (let element of value){
-//                 if(!isNaN(element)) {
-//                     // result.splice(element-1,0,value)
-//                     result[element-1]=value
-//                 }
-//             }
-//         }
-//         console.log(result.join(" "))
-//     }
-// }
-
-// sortString("4of Fo1r pe6ople g3ood th5e the2")
-
+function sortString(string) {
+    if(string.length==0) {
+        return ""
+    }
+    else {
+        let result = []
+        let arrString = string.split(" ")
+        for ( let value of arrString ){
+            for (let element of value){
+                if(!isNaN(element)) {
+                    // result.splice(element-1,0,value)
+                    result[element-1]=value
+                }
+            }
+        }
+        return result.join(" ")
+    }
+}
 // TASK 3
-
 
 function TeamConstructor() {
     this.player1 = {
@@ -118,13 +114,9 @@ function TeamConstructor() {
     }
     
     this.addRedCard = function(select_player) {
-        if(this[select_player]?.cards.redCard == undefined){}
-
-        else {
+        if(!this[select_player]?.cards.redCard == undefined){
             this[select_player].cards.redCard=1
         }
-        
-        // console.log(this[select_player].cards.redCard)
     }
 
     this.addYellowCard = function(select_player) {
@@ -156,16 +148,17 @@ function menStillStanding(teamA, teamB, event) {
             if(tmp[tmp.length-1]=="R") {
                 teamA.addRedCard(select_player)
                 teamA.deletePlayer(select_player)
-                // console.log("Team A",teamA)
             }
             else {
-                if(this[select_player]?.cards.redCard == undefined){}
-                else {
+                if(teamA[select_player]?.cards.redCard !== undefined){
                     teamA.addYellowCard(select_player)
                     if(teamA[select_player].cards.yellowCard==2) {
                         teamA.deletePlayer(select_player)
                     }
                 }
+            }
+            if(Object.keys(teamA).length < 7 || Object.keys(teamB).length < 7) {
+                return [Object.keys(teamA).length-3,Object.keys(teamB).length-3]
             }
         }
 
@@ -178,24 +171,18 @@ function menStillStanding(teamA, teamB, event) {
                 
             }
             else {
-                if(this[select_player]?.cards.redCard == undefined){}
-                else {
-                    teamA.addYellowCard(select_player)
-                    if(teamA[select_player].cards.yellowCard==2) {
-                        teamA.deletePlayer(select_player)
+                if(teamB[select_player]?.cards.redCard != undefined){
+                    teamB.addYellowCard(select_player)
+                    if(teamB[select_player].cards.yellowCard==2) {
+                        teamB.deletePlayer(select_player)
                     }
                 }
             }
+        }  
+        if(Object.keys(teamA).length-3 < 7 || Object.keys(teamB).length-3 < 7) {
+            return [Object.keys(teamA).length-3,Object.keys(teamB).length-3]
         }
-    }
-
-    if(Object.keys(teamA).length < 7 || Object.keys(teamB).length < 7) {
-        return [Object.keys(teamA).length-3,Object.keys(teamB).length-3]
-    }
-    else {
-        return [Object.keys(teamA).length-3, Object.keys(teamB).length-3]
-    }
+    } 
+    return [Object.keys(teamA).length-3, Object.keys(teamB).length-3]
 }
 
-let result = menStillStanding(teamA,teamB,["B10Y","B10Y", "B10R"])
-console.log(result)
