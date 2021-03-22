@@ -10,20 +10,15 @@ function myConcat() {
 
 //lastIndexOf()
 
-// function myLastIndexOf(str, letter, index=1) {
-//     let res = -1
-//     for(let i=index; i<=str.length-1; i++) {
-//         if(str[i] == letter) {
-//             res = i;
-//         }
-//     }
-//     return res
-// }
-
-// console.log(myLastIndexOf("канал", "а",4))
-// console.log("канал".lastIndexOf("а",4))
-
-// console.log("Egor".split("").reverse().join(""))
+function myLastIndexOf(str, char, index) {
+    let res = -1
+    for(let i=0; i<=index; i++) {
+        if(str[i] == char) {
+            res = i
+        }
+    }
+    return res
+}
 
 //includes()
 
