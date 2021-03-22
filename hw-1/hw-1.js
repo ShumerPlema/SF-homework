@@ -171,7 +171,7 @@ function menStillStanding(teamA, teamB, event) {
                 
             }
             else {
-                if(teamB[select_player]?.cards.redCard != undefined){
+                if(teamB[select_player]?.cards.redCard !== undefined){
                     teamB.addYellowCard(select_player)
                     if(teamB[select_player].cards.yellowCard==2) {
                         teamB.deletePlayer(select_player)
@@ -186,3 +186,5 @@ function menStillStanding(teamA, teamB, event) {
     return [Object.keys(teamA).length-3, Object.keys(teamB).length-3]
 }
 
+let result = menStillStanding(teamA, teamB, ["B4R", "B4Y", "B4Y"])
+console.log(result)
