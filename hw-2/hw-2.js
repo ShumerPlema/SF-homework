@@ -10,7 +10,7 @@ function myConcat() {
 
 //lastIndexOf()
 
-function myLastIndexOf(str, char, index) {
+function myLastIndexOf(str, char, index=str.length) {
     let res = -1
     for(let i=0; i<=index; i++) {
         if(str[i] == char) {
