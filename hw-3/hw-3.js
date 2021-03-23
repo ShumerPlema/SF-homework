@@ -91,9 +91,9 @@ function mapToReduce () {
 
 //from filter to reduce
 function filterToReduce () {
-    const tmpArr = ["Аблоко","Банан","Ананас"];
+    const tmpArr = ["Яблоко","Банан","Ананас"];
     let res = tmpArr.reduce((acc,el) => {
-        if(el[0].toLowerCase() === "g") {
+        if(el[0].toLowerCase() === "а") {
             acc[0] = el;
         }
         return acc;
@@ -103,10 +103,9 @@ function filterToReduce () {
 }
 
 // from forEach to reduce
-const tmpArr = ["Аблоко","Банан","Ананас"];
 
 function forEachToReduce () {
-    const tmpArr = ["Аблоко","Банан","Ананас"];
+    const tmpArr = ["Яблоко","Банан","Ананас"];
     let res = tmpArr.reduce((acc,el,index,arr) => {
         acc[index] = `${index + 1}: ${el};` 
         return acc;
@@ -114,4 +113,3 @@ function forEachToReduce () {
 
     return res;
 }
-
