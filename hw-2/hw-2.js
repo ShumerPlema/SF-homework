@@ -58,7 +58,7 @@ function myRepeat(str,count) {
 
 function mySubstr(str, startPos, endPos = str.length) {
     let res = []
-    for(let i=startPos; i<endPos; i++) {
+    for(let i=startPos; i<=endPos; i++) {
         res[i] = str[i];
     }
     return res.join("");
