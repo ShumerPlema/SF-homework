@@ -1,4 +1,3 @@
-
 function countdown(ms) {
 
     let res = [];
@@ -6,7 +5,7 @@ function countdown(ms) {
 
     const hr = ms / 3600000;
     const min = ms % 3600000 / 60000;
-    const sec = ms % 360000  % 60000 / 1000;
+    const sec = ms % 3600000  % 60000 / 1000;
 
     tmp.push(parseInt(hr), parseInt(min), parseInt(sec))
 
@@ -36,4 +35,3 @@ function countdown(ms) {
 
 
 console.log(countdown(-61000))
-
