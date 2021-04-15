@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Irina",
+    "surname": "Petrova",
+    "login": "petrova123",
+    "password": "Password12345678",
+    "email": "irina@gmail.com",
+    "dob": "1998/01/01"
+  },
+  {
+    "name": "Egor",
+    "surname": "Marderosov",
+    "login": "maredrosov123",
+    "password": "Password12345678",
+    "email": "marderosov@gmail.com",
+    "dob": "2001/01/01"
+  },
+  {
+    "name": "Katya",
+    "surname": "Petrova",
+    "login": "katya123",
+    "password": "Password12345678",
+    "email": "katya@gmail.com",
+    "dob": "1998/01/01"
+  },
+  {
+    "name": "Sergey",
+    "surname": "Bobov",
+    "login": "sergeyBob",
+    "password": "Password12345678",
+    "email": "katya@gmail.com",
+    "dob": "1998/01/01"
+  },
+  {
+    "name": "Sergey",
+    "surname": "Bobenko",
+    "login": "sergeyBob27",
+    "password": "Password12345678",
+    "email": "katya@gmail.com",
+    "dob": "1998/01/01"
+  }
+]
