@@ -38,5 +38,13 @@
     "password": "Password12345678",
     "email": "katya@gmail.com",
     "dob": "1998/01/01"
+  },
+  {
+    "name": "Robin",
+    "surname": "Good",
+    "login": "robin27",
+    "password": "Password12345678",
+    "email": "robin@gmail.com",
+    "dob": "1998/01/01"
   }
 ]
