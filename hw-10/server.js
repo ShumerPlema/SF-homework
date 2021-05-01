@@ -12,7 +12,7 @@ http.createServer((req, res) => {
     switch (keys[0]) {
         case "reg":
             if(reg(query,res ,fs)) {
-                res.writeHead(200, "{ 'Content-Type' : 'text/html' }");
+                res.writeHead(200, { 'Content-Type' : 'text/html' });
                 res.write("<h1>Added new user</h1>")
             }
             break;
@@ -46,5 +46,5 @@ http.createServer((req, res) => {
     res.end()
 }).listen(5500);
 
-// console.log("http://localhost:5500/?auth&login=sergeyBob27&password=Password12345678");
-// console.log("http://localhost:5500/?reg&name=Sergey&surname=Bobenko&login=sergeyBob27&password=Password12345678&email=katya@gmail.com&dob=1998%2F01%2F01");
+console.log("http://localhost:5500/?auth&login=robin27&password=Password12345678");
+console.log("http://localhost:5500/?reg&name=Robin&surname=Good&login=robin27&password=Password12345678&email=robingmail.com&dob=1998%2F01%2F01");
