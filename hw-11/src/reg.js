@@ -17,7 +17,7 @@ exports.reg = function (res, qur) {
                 }
 
                 res.writeHead(200, "{ 'Content-Type' : 'text/html' }");
-                res.write("<h1>Add new user</h1>");
+                res.write("<h1>Add new users</h1>");
                 res.end();
             })
         } else {
