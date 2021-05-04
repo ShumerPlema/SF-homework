@@ -13,7 +13,7 @@ http.createServer((req, res) => {
         case "reg":
             if(reg(query,res ,fs)) {
                 res.writeHead(200, { 'Content-Type' : 'text/html' });
-                res.write("<h1>Added new user</h1>")
+                res.write("<h1>Added new users</h1>")
             }
             break;
 

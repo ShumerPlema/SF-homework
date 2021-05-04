@@ -1,7 +1,7 @@
 const client = require("../dbConnect.js");
 
 class OrderModel {
-    async newOrder(queryValue) {
+    async newOrder(userData, queryValue) {
 
         const validateProductsRes = await this.validateProducts(queryValue);
 
@@ -9,29 +9,14 @@ class OrderModel {
             return validateProductsRes;
         }
 
-        const validateUserRes = await this.validateUser(queryValue);
-
-        if (validateUserRes.status === "error") {
-            return validateUserRes;
-        }
-
-
-        const usersPhones = await client.query(`SELECT phone FROM users WHERE phone = '${queryValue.user.phone}'`);
-
-        if (usersPhones.rows.length === 0) {
-            return this.addNewUser(queryValue);
-        }
-
-        if (usersPhones.rows.length !== 0) {
-            return this.addProductsToOrder(queryValue);
-        }
+        return await this.addProductsToOrder(userData, queryValue);
     }
 
-    async orderInfo(queryValue, idOrder) {
+    async orderInfo(userData, queryValue, idOrder) {
 
-        const sortedQueryValue = queryValue.products.sort((a, b) => a.id - b.id)
+        const sortedQueryValue = queryValue.sort((a, b) => a.id - b.id)
         const prodIdArr = sortedQueryValue.map(el => el.id).sort((a, b) => a - b)
-        const prodAmountArr = queryValue.products.map(el => el.count)
+        const prodAmountArr = queryValue.map(el => el.count)
         const prodInfo = await client.query(`SELECT products.id_product, products.product, products.price, units.unit
                                           FROM products
                                           INNER JOIN units
@@ -40,9 +25,9 @@ class OrderModel {
 
         const orderInfoObj = {
             user: {
-                name: queryValue.user.name,
-                phone: queryValue.user.phone,
-                email: queryValue.user.email
+                name: userData.name,
+                phone: userData.phone,
+                email: userData.email
             },
             orderProducts: [],
             otherInfo: {
@@ -69,18 +54,16 @@ class OrderModel {
 
     orderMail(orderInfo) {
 
-        console.log(orderInfo.orderProducts)
-
         const orderTemplate = orderInfo.orderProducts.reduce((acc, el) => {
             const prodObj = Object.values(el).reduce((accum, element) => {
                 return accum.concat(`<td>${element}</td>`);
-            },"")
+            }, "")
             return acc.concat(`<tr>${prodObj}</tr>`)
-        },"")
+        }, "")
 
         const userTemplate = Object.values(orderInfo.user).reduce((acc, el) => {
             return acc.concat(`<td>${el}</td>`)
-        },"")
+        }, "")
 
         const mail = `<h1>Order number: ${orderInfo.otherInfo.id_order}</h1>
             
@@ -103,89 +86,30 @@ class OrderModel {
         }
     }
 
-    async addProductsToOrder(queryValue) {
-        const idUser = await client.query(`SELECT id_user FROM users WHERE phone = '${queryValue.user.phone}'`);
-        await client.query(`INSERT INTO orders (id_user) VALUES (${idUser.rows[0].id_user})`);
-        const idOrder = await client.query(`SELECT id_order FROM orders WHERE id_user = ${idUser.rows[0].id_user} ORDER BY id_order`);
+    async addProductsToOrder(userData, queryValue) {
+        await client.query(`INSERT INTO orders (id_user) VALUES (${userData.id_user})`);
+        const idOrder = await client.query(`SELECT id_order FROM orders WHERE id_user = ${userData.id_user} ORDER BY id_order`);
 
-        for (let i = 0; i < queryValue.products.length; i++) {
+
+        for (let i = 0; i < queryValue.length; i++) {
             await client.query(`INSERT INTO orderitem (id_order, id_product, quantity)
             VALUES ('${idOrder.rows[idOrder.rows.length - 1].id_order}',
-            '${queryValue.products[i].id}',
-            '${queryValue.products[i].count}')`)
+            '${queryValue[i].id}',
+            '${queryValue[i].count}')`)
         }
 
-        return await this.orderInfo(queryValue, idOrder);
-    }
-
-    async addNewUser(queryValue) {
-        await client.query(`INSERT INTO users (name, email, phone) VALUES ('${queryValue.user.name}', '${queryValue.user.email}', '${queryValue.user.phone}')`)
-        return this.addProductsToOrder(queryValue);
-    }
-
-    async validateUser(queryValue) {
-        const errorObj = {
-            status: "error",
-            data: [],
-            message: "User info is not valid"
-        }
-
-        if(!("user" in queryValue)) {
-            return {
-                status: "error",
-                data: [],
-                message: "The key 'user' missing"
-            }
-        }
-
-        const regularExpName = /^[A-ZА-Я][a-zA-Zа-яА-Я ,.'-]{1,30}$/
-        const regularExpPhone = /^380\d{9}$/;
-        const regularExpEmail = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-        if (!regularExpName.test(queryValue.user.name)) {
-            return errorObj;
-        }
-
-        if (!regularExpPhone.test(queryValue.user.phone) || typeof(queryValue.user.phone) !== "string") {
-            return errorObj;
-        }
-
-        if (!regularExpEmail.test(queryValue.user.email)) {
-            queryValue.user.email = "NULL";
-        }
-
-        return {
-            status: "ok",
-            data: [],
-            message: ""
-        }
+        return await this.orderInfo(userData, queryValue, idOrder);
     }
 
     async validateProducts(queryValue) {
 
-        if(!("products" in queryValue)) {
-            return {
-                status: "error",
-                data: [],
-                message: "The key 'products' missing"
-            }
-        }
-
-        if(queryValue.products.length === 0) {
-            return {
-                status: "error",
-                data: [],
-                message: "Products are empty"
-            }
-        }
-
-        const validateIdProductsRes = await this.validateIdProducts(queryValue.products);
+        const validateIdProductsRes = await this.validateIdProducts(queryValue);
 
         if (validateIdProductsRes.status === "error") {
             return validateIdProductsRes;
         }
 
-        const validateCountProductsRes = await this.validateCountProducts(queryValue.products);
+        const validateCountProductsRes = await this.validateCountProducts(queryValue);
 
         if (validateCountProductsRes.status === "error") {
             return validateCountProductsRes;
@@ -229,15 +153,15 @@ class OrderModel {
         const queryValueCount = queryValue.map(el => el.count);
         let countIsValid = true;
 
-       let incorrectCount = queryValueCount.filter(el => el <= 0);
+        let incorrectCount = queryValueCount.filter(el => el <= 0);
 
-       if (incorrectCount.length >= 1) {
-           return {
-               status: "error",
-               data: [],
-               message: "Incorrect values of count"
-           }
-       }
+        if (incorrectCount.length >= 1) {
+            return {
+                status: "error",
+                data: [],
+                message: "Incorrect values of count"
+            }
+        }
 
         if (queryValueCount.filter(el => Number.isInteger(el)).length !== queryValueCount.length) {
             return {
@@ -269,7 +193,6 @@ class OrderModel {
             }
         }
     }
-
 }
 
 const orderMod = new OrderModel();
