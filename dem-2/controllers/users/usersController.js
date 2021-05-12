@@ -1,5 +1,4 @@
-const client = require("../../dbConnect.js")
-const usersProd = require("../../models/usersModel.js");
+const usersProd = require("../../modules/usersModules.js");
 const usersView = require("../../views/usersView.js");
 
 class usersController {

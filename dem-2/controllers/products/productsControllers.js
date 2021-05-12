@@ -1,4 +1,4 @@
-const prodMod = require("../../models/productsModel.js");
+const prodMod = require("../../modules/productsModules.js");
 const prodView = require("../../views/productsView.js");
 
 class ProductsControllers {

@@ -1,4 +1,4 @@
-const orderMod = require("../../models/orderModel");
+const orderMod = require("../../modules/orderModules");
 const orderView = require("../../views/orderView.js");
 
 class OrderController {
