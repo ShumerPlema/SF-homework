@@ -1,6 +1,12 @@
-const client = require("../dbConnect.js");
+const {ProductModel} = require("../database/models/productsModel");
+const {CategoryModel} = require("../database/models/categoriesModel");
+const {ManufactureModel} = require("../database/models/manufacturesModel");
+const {UnitModel} = require("../database/models/unitsModel");
+const {OrderModel} = require("../database/models/ordersModel");
+const {OrderitemModel} = require("../database/models/orderitemModel");
+const {Op} = require("sequelize");
 
-class OrderModel {
+class OrderModules {
     async newOrder(userData, queryValue) {
 
         const validateProductsRes = await this.validateProducts(queryValue);
@@ -17,11 +23,36 @@ class OrderModel {
         const sortedQueryValue = queryValue.sort((a, b) => a.id - b.id)
         const prodIdArr = sortedQueryValue.map(el => el.id).sort((a, b) => a - b)
         const prodAmountArr = queryValue.map(el => el.count)
-        const prodInfo = await client.query(`SELECT products.id_product, products.product, products.price, units.unit
-                                          FROM products
-                                          INNER JOIN units
-                                          ON units.id_unit = products.id_unit
-                                          WHERE id_product IN (${prodIdArr.join(",")})`)
+
+        const prodInfo = await ProductModel.findAll({
+            where: {
+                id_product: {
+                    [Op.in]:  prodIdArr,
+                }
+            },
+            attributes: [
+                "id_product",
+                "product",
+                "price",
+            ],
+            include: [
+                {
+                    model: CategoryModel,
+                    required: true,
+                    attributes: ["category"],
+                },
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: ["unit"],
+                },
+                {
+                    model: ManufactureModel,
+                    attributes: ["manufacture"],
+                    required: true,
+                }
+            ],
+        })
 
         const orderInfoObj = {
             user: {
@@ -31,14 +62,19 @@ class OrderModel {
             },
             orderProducts: [],
             otherInfo: {
-                id_order: idOrder.rows[idOrder.rows.length - 1].id_order,
+                id_order: idOrder[idOrder.length - 1].id_order,
                 total_price: ""
             }
         }
 
-        prodInfo.rows.map((el, index) => {
-            orderInfoObj.orderProducts.push(el);
+        prodInfo.map((el, index) => {
+            orderInfoObj.orderProducts.push(el.dataValues);
+            orderInfoObj.orderProducts[index].Unit = orderInfoObj.orderProducts[index].Unit.dataValues.unit;
+            orderInfoObj.orderProducts[index].Category = orderInfoObj.orderProducts[index].Category.dataValues.category;
+            orderInfoObj.orderProducts[index].Manufacture = orderInfoObj.orderProducts[index].Manufacture.dataValues.manufacture;
+
         })
+
         orderInfoObj.orderProducts.map((el, index) => {
             return el.count = prodAmountArr[index]
         })
@@ -53,6 +89,7 @@ class OrderModel {
     }
 
     orderMail(orderInfo) {
+
 
         const orderTemplate = orderInfo.orderProducts.reduce((acc, el) => {
             const prodObj = Object.values(el).reduce((accum, element) => {
@@ -87,16 +124,37 @@ class OrderModel {
     }
 
     async addProductsToOrder(userData, queryValue) {
-        await client.query(`INSERT INTO orders (id_user) VALUES (${userData.id_user})`);
-        const idOrder = await client.query(`SELECT id_order FROM orders WHERE id_user = ${userData.id_user} ORDER BY id_order`);
+        await OrderModel.create({
+            id_user: userData.id_user
+        })
+
+        const idOrder = await OrderModel.findAll({
+            where: {
+                id_user: userData.id_user,
+            },
+            attributes: [
+                "id_order"
+            ],
+            order: [
+                "id_order"
+            ],
+        })
+
+        const order = queryValue.reduce((acc, el, index) => {
+            acc.push({
+                id_order: idOrder[idOrder.length - 1].dataValues.id_order,
+                id_product: el.id,
+                quantity: el.count,
+            });
+
+            return acc;
+        }, []);
 
 
-        for (let i = 0; i < queryValue.length; i++) {
-            await client.query(`INSERT INTO orderitem (id_order, id_product, quantity)
-            VALUES ('${idOrder.rows[idOrder.rows.length - 1].id_order}',
-            '${queryValue[i].id}',
-            '${queryValue[i].count}')`)
-        }
+        await OrderitemModel.bulkCreate(order, {
+            fields: ["id_order", "id_product", "quantity"]
+        });
+
 
         return await this.orderInfo(userData, queryValue, idOrder);
     }
@@ -123,9 +181,13 @@ class OrderModel {
     }
 
     async validateIdProducts(queryValue) {
-        const idProduct = await client.query("SELECT id_product FROM products");
+        const idProduct = await ProductModel.findAll({
+            attributes: [
+                "id_product",
+            ]
+        })
         const queryValueArr = queryValue.map(el => el.id);
-        const idProductArr = [...idProduct.rows].map(el => el.id_product);
+        const idProductArr = idProduct.map(el => el.id_product);
         let validateProdId = queryValueArr.every(el => idProductArr.includes(el));
         let idIsValid = true;
 
@@ -171,10 +233,20 @@ class OrderModel {
             }
         }
 
-        const amountProduct = await client.query(`SELECT id_product, amount FROM products WHERE id_product IN (${queryValueId.join(",")})`);
+        const amountProduct = await ProductModel.findAll({
+            where: {
+                id_product: {
+                    [Op.in]: queryValueId
+                }
+            },
+            attributes: [
+                "id_product",
+                "amount",
+            ]
+        })
 
         for (let i = 0; i < queryValueCount.length; i++) {
-            if (queryValueCount[i] > amountProduct.rows[i].amount) {
+            if (queryValueCount[i] > amountProduct[i].amount) {
                 countIsValid = false
             }
         }
@@ -195,6 +267,6 @@ class OrderModel {
     }
 }
 
-const orderMod = new OrderModel();
+const orderMod = new OrderModules();
 
 module.exports = orderMod;
